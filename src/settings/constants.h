@@ -3,6 +3,6 @@
 
 #include "log/logger.h"
 
-#define LOGGER_GLOBAL_LEVEL LOGGER_LEVEL_INFO
+#define CONSTANT_LOG_LEVEL LOGGER_LEVEL_INFO
 
 #endif
