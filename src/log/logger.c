@@ -30,16 +30,16 @@ static int logger_print(logger_t logger, unsigned int level, char *fmt, va_list 
 }
 
 int logger_create(logger_t *destination, char *name, int level) {
-    struct logger_s *ptrDestination;
+    struct logger_s *ptr_destination;
     if (!name) return LOGGER_E_INVALID_NAME;
 
     *destination = (logger_t) malloc(sizeof(struct logger_s));
-    ptrDestination = (struct logger_s*) *destination;
+    ptr_destination = (struct logger_s*) *destination;
 
-    ptrDestination->name = (char *) malloc(strlen(name) + 1);
-    strcpy(ptrDestination->name, name);
+    ptr_destination->name = (char *) malloc(strlen(name) + 1);
+    strcpy(ptr_destination->name, name);
 
-    ptrDestination->level = level;
+    ptr_destination->level = level;
 
     return LOGGER_E_SUCCESSFUL;
 }
