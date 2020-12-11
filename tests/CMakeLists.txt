@@ -1,10 +1,10 @@
-include_directories (${KEYLOGGER_SOURCE_DIR}/src)
+include_directories (. ../src)
 
 add_executable (
     TestRunner
 
+    assertions/assertions.c
     test.c
-    test_logger.c
 )
 
 target_link_libraries (TestRunner shared)
