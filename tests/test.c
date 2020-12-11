@@ -1,7 +1,13 @@
 #include <stdio.h>
 
 #include "assertions/assertions.h"
+
+#include "memory/memory.h"
 #include "log/logger.h"
+
+#ifdef CONSTANT_LOG_LEVEL
+    #define CONSTANT_LOG_LEVEL LOGGER_LEVEL_DEBUG
+#endif
 
 void test_logger() {
     logger_t logger;
@@ -59,10 +65,27 @@ void test_logger() {
     );
 }
 
+void test_memory() {
+    printf("--- > Testing memory allocator \n");
+    memory_parameters_s parameters = {
+        .log_level = LOGGER_LEVEL_DEBUG,
+        .logName = "memory"
+    };
+    memory_init(&parameters);
+
+    int *ptr_to_int = memory_alloc(sizeof(int), "just a regular integer");
+    *ptr_to_int = 10;
+
+    assert_equals(10, *ptr_to_int, "Could not store value inside allocated memory");
+
+    memory_free(ptr_to_int);
+}
+
 int main() {
     printf("Running tests \n");
 
     test_logger();
+    test_memory();
 
     printf("Finished tests Successfully :)");
     return 0;
