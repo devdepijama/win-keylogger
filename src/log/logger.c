@@ -11,16 +11,12 @@ struct logger_s {
     char *name;
 };
 
-static struct logger_s materialize(logger_t destination) {
-    return (struct logger_s) *destination;
-}
-
 static void logger_print(logger_t logger, char *log_level, char *fmt, va_list args) {
     // Create a "prefixed" format string, by appending the log level and the log name
     char *prefixed_fmt = (char *) malloc(PREFIX_SIZE + (strlen(fmt) + 1));
-    sprintf(prefixed_fmt,"[%5s] - %s - %s", log_level, logger->name, fmt);
+    sprintf(prefixed_fmt,"[%5s] - %s - %s \n", log_level, logger->name, fmt);
 
-    vprintf_s(prefixed_fmt, args);
+    vprintf(prefixed_fmt, args);
 
     free(prefixed_fmt);
 }
@@ -32,6 +28,7 @@ int logger_create(logger_t *destination, char *name) {
     *destination = (logger_t) malloc(sizeof(struct logger_s));
     ptrDestination = (struct logger_s*) *destination;
 
+    ptrDestination->name = (char *) malloc(strlen(name) + 1);
     strcpy(ptrDestination->name, name);
 
     return LOGGER_E_SUCCESSFUL;
@@ -59,5 +56,6 @@ void logger_error(logger_t logger, char *fmt, ...) {
 }
 
 void logger_destroy(logger_t logger) {
+    free(logger->name);
     free(logger);
 }
