@@ -1,11 +1,12 @@
-#include "logger.h"
+#include "log/logger.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
 
-#define PREFIX_SIZE 25
+#define PREFIX_SIZE 256
 
 struct logger_s {
     char *name;
@@ -15,12 +16,26 @@ struct logger_s {
 // Do not change order. It matches the values of LOGGER_LEVEL_XXXXX
 static char *level_name_by_level[] = {"ERROR", "WARN", "INFO", "DEBUG"};
 
+
 static int logger_print(logger_t logger, unsigned int level, char *fmt, va_list args) {
 
     // Create a "prefixed" format string, by appending the log level and the log name
     char *prefixed_fmt = (char *) malloc(PREFIX_SIZE + (strlen(logger->name) + 1) + (strlen(fmt) + 1));
     char *log_level = level_name_by_level[level];
-    sprintf(prefixed_fmt,"[%5s] - %s - %s \n", log_level, logger->name, fmt);
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    sprintf(
+        prefixed_fmt,
+        "%02d/%02d/%04d %02d:%02d:%02d - [%5s] - %s - %s \n",
+        tm.tm_mday, // day
+        tm.tm_mon + 1, // month
+        tm.tm_year + 1900, // year
+        tm.tm_hour, tm.tm_min, tm.tm_sec, // hour:minutes:seconds
+        log_level,
+        logger->name,
+        fmt
+    );
 
     vprintf(prefixed_fmt, args);
 

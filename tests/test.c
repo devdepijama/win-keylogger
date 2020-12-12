@@ -13,7 +13,7 @@ static logger_t logger_keyboard_listener;
 static logger_t logger_tests;
 static logger_t logger_memory;
 
-static void setup();
+static void init();
 static void test_logger();
 static void test_memory();
 static void test_keyboard_listener();
@@ -31,7 +31,7 @@ int main() {
     return 0;
 }
 
-static void setup() {
+static void init() {
     logger_create(&logger_keyboard_listener, "key-interceptor", LOGGER_LEVEL_DEBUG);
     logger_create(&logger_tests, "tests", LOGGER_LEVEL_DEBUG);
     logger_create(&logger_memory, "memory", LOGGER_LEVEL_DEBUG);

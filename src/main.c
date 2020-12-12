@@ -5,6 +5,8 @@
 #include "keyboard/listener.h"
 #include "memory/memory.h"
 
+static logger_t logger;
+
 void on_key_pressed_callback(char key) {
     printf("%c", key);
 }
@@ -22,9 +24,14 @@ void init_keyboard_listener() {
     keyboard_listener_create(&parameters);
 }
 
+void init_logger() {
+    logger_create(&logger, "app", CONSTANT_LOG_LEVEL);
+}
+
 void init() {
     init_memory();
     init_keyboard_listener();
+    init_logger();
 }
 
 int main() {
@@ -32,7 +39,7 @@ int main() {
     init();
 
     if (KEYBOARD_LISTENER_E_SUCCESSFUL != keyboard_listener_start()) {
-        printf("Fudeu.. o hook nao foi instalado");
+        logger_error(logger, "Could not start keyboard listener");
         return -1;
     }
     scanf("Press any key to uninstall WindowsHook: %s", &input);
