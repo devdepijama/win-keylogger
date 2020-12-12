@@ -4,7 +4,6 @@
 #include <windows.h>
 #include <stdlib.h>
 
-
 static struct keyboard_listener_s {
     on_key_pressed_t key_pressed_callback;
     logger_t logger;
@@ -43,9 +42,17 @@ int keyboard_listener_create(keyboard_listener_parameters_s *parameters) {
 }
 
 int keyboard_listener_start() {
+    HINSTANCE hinstDLL = LoadLibrary(TEXT("libhook.dll"));
+
     logger_info(context.logger, "Installing keyboard hook");
 
-    context.hook = SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC) hook_callback, GetModuleHandle(NULL), 0);
+    context.hook = SetWindowsHookEx(
+        WH_KEYBOARD,
+        (HOOKPROC) GetProcAddress(hinstDLL, "keyboard_hook_callback"),
+        hinstDLL,
+        0
+    );
+
     if (!context.hook) {
         DWORD error = GetLastError();
         logger_error(context.logger, "Could not install hook: %d", error);
