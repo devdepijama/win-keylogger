@@ -19,7 +19,7 @@ static void test_memory();
 static void test_keyboard_listener();
 
 int main() {
-    setup();
+    init();
 
     logger_info(logger_tests,"Running tests...");
 
