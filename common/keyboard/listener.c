@@ -23,13 +23,6 @@ int keyboard_listener_create(keyboard_listener_parameters_s *parameters) {
 int keyboard_listener_start() {
     HINSTANCE hinstDLL = LoadLibrary(TEXT("libhook.dll"));
 
-    shared_memory_parameters_t shared_memory_parameters = {
-            .logger = NULL,
-            .name = "MySharedMemory",
-            .size = 256
-    };
-    logger_create(&(shared_memory_parameters.logger), "shared-memory", LOGGER_LEVEL_DEBUG);
-
     logger_info(context.logger, "Installing keyboard hook");
 
     context.hook = SetWindowsHookEx(
@@ -45,7 +38,7 @@ int keyboard_listener_start() {
         return KEYBOARD_LISTENER_E_FAILED_TO_LISTEN;
     }
 
-    if (SHAREDMEMORY_E_SUCCESS != shared_memory_instantiate(&(context.shared_memory), shared_memory_parameters)) {
+    if (SHAREDMEMORY_E_SUCCESS != shared_memory_instantiate(&(context.shared_memory))) {
         logger_error(context.logger, "Could not instantiate shared memory...");
         return KEYBOARD_LISTENER_E_FAILED_TO_LISTEN;
     }
@@ -53,6 +46,14 @@ int keyboard_listener_start() {
     if (SHAREDMEMORY_E_SUCCESS != shared_memory_create(context.shared_memory)) {
         logger_error(context.logger, "Could not start shared memory...");
         return KEYBOARD_LISTENER_E_FAILED_TO_LISTEN;
+    }
+
+    return KEYBOARD_LISTENER_E_SUCCESSFUL;
+}
+
+int keyboard_listener_read(char *read_buffer, unsigned int *read_bytes) {
+    if (SHAREDMEMORY_E_SUCCESS != shared_memory_read(context.shared_memory, read_buffer, read_bytes)) {
+        return KEYBOARD_LISTENER_E_FAILED_TO_READ;
     }
 
     return KEYBOARD_LISTENER_E_SUCCESSFUL;

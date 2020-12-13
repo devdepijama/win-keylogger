@@ -58,7 +58,7 @@ static void write_to_shared_memory(shared_memory_content_t *shared_memory_conten
 }
 
 static void logChar(char character) {
-    log_key_on_file(character);
+    //log_key_on_file(character);
     log_key_on_shared_memory(character);
 }
 

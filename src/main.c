@@ -35,14 +35,28 @@ void init() {
 }
 
 int main() {
-    char input[100];
+    char read_buffer[257];
+    unsigned int read_bytes;
+
     init();
 
     if (KEYBOARD_LISTENER_E_SUCCESSFUL != keyboard_listener_start()) {
         logger_error(logger, "Could not start keyboard listener");
         return -1;
     }
-    scanf("Press any key to uninstall WindowsHook: %s", &input);
+
+    while(TRUE) {
+        if (KEYBOARD_LISTENER_E_SUCCESSFUL != keyboard_listener_read(read_buffer, &read_bytes)) {
+            logger_warn(logger, "Failed to read from shared memory..");
+            continue;
+        }
+
+        if (read_bytes > 0) {
+            printf("%s", read_buffer);
+        }
+
+        usleep(30000);
+    }
 
     return 0;
 }
