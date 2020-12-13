@@ -8,7 +8,7 @@
 static logger_t logger;
 
 void on_key_pressed_callback(char key) {
-    printf("%c", key);
+    logger_info(logger,"Received a key: %c", key);
 }
 
 void init_memory() {

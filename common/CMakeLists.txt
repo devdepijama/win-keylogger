@@ -5,5 +5,6 @@ add_library (
     keyboard/listener.c
     log/logger.c
     memory/memory.c
+    memory/shared.c
 )
 target_include_directories(common PRIVATE .)
