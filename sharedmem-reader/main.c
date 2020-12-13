@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <conio.h>
+#include <unistd.h>
 
 #define MEMORY_SIZE 256
 char *sm_name = "MySharedMemory";
@@ -35,7 +36,10 @@ int main()
         return -1;
     }
 
-    printf("Read from shared memory: \"%s\" \n", shared_memory);
+    for(int i = 0; i < 100; i++) {
+        printf("Read from shared memory: \"%s\" \n", shared_memory);
+        usleep(300000);
+    }
 
     UnmapViewOfFile(shared_memory);
     CloseHandle(handle_shared_memory);
