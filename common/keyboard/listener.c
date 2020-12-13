@@ -6,16 +6,14 @@
 #include <stdlib.h>
 
 static struct keyboard_listener_s {
-    on_key_pressed_t key_pressed_callback;
     logger_t logger;
     HHOOK hook;
     shared_memory_t shared_memory;
 } context;
 
-int keyboard_listener_create(keyboard_listener_parameters_s *parameters) {
-    context.key_pressed_callback = parameters->key_pressed_callback;
-    context.logger = parameters->logger;
+int keyboard_listener_create() {
     context.hook = NULL;
+    logger_create(&(context.logger), "keyboard-listener", LOGGER_LEVEL_DEBUG);
 
     return KEYBOARD_LISTENER_E_SUCCESSFUL;
 }
@@ -60,5 +58,5 @@ int keyboard_listener_read(char *read_buffer, unsigned int *read_bytes) {
 }
 
 int keyboard_listener_destroy() {
-    // Does nothing
+    logger_destroy(context.logger);
 }

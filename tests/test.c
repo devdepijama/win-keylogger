@@ -48,10 +48,7 @@ static void init() {
 
     logger_info(logger_tests, "Setting tests up...");
 
-    memory_parameters_s parameters = {
-        .logger = logger_memory
-    };
-    memory_init(&parameters);
+    memory_init();
 }
 
 static void test_logger() {
@@ -124,36 +121,18 @@ static void test_memory() {
 static void test_shared_memory() {
     char *message = "a random message";
     shared_memory_t instance;
-    shared_memory_parameters_t parameters = {
-            .logger = logger_shared_memory,
-            .name = "MySharedMemory",
-            .size = 256
-    };
 
     logger_info(logger_tests, "Testing shared memory");
 
-    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_instantiate(&instance, parameters), "Could not instantiate shared memory object");
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_instantiate(&instance), "Could not instantiate shared memory object");
     assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_create(instance), "Could not create shared memory");
-    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_attach_listener(instance, shared_memory_print_callback), "Could not attach callback to memory reader");
 
     logger_info(logger_tests, "Will send \"%s\" through shared memory", message);
 
     assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_write(instance, message, strlen(message) + 1), "Could not send a message on shared memory");
-    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_read(instance), "Could not read from shared memory");
+
+    char read_buffer[256];
+    unsigned int read_bytes;
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_read(instance, read_buffer, &read_bytes), "Could not read from shared memory");
     assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_free(instance), "Could not free allocated resources for handling shared memory");
-}
-
-static void shared_memory_print_callback(void *source, unsigned length) {
-    logger_info(logger_tests, "Read the following from shared memory queue: %s", source);
-}
-
-static void wait_input(char *message) {
-    char something[30];
-    logger_info(logger_tests, message);
-    scanf("%s", &something);
-}
-
-static void test_keyboard_listener() {
-    logger_t logger;
-
 }

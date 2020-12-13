@@ -16,7 +16,6 @@ struct logger_s {
 // Do not change order. It matches the values of LOGGER_LEVEL_XXXXX
 static char *level_name_by_level[] = {"ERROR", "WARN", "INFO", "DEBUG"};
 
-
 static int logger_print(logger_t logger, unsigned int level, char *fmt, va_list args) {
 
     // Create a "prefixed" format string, by appending the log level and the log name

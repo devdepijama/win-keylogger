@@ -1,5 +1,6 @@
 #include "memory/shared.h"
 #include "memory/memory.h"
+#include "settings/constants.h"
 
 #include <string.h>
 #include <windows.h>
@@ -139,7 +140,7 @@ static unsigned int read_shared_memory(shared_memory_content_t *content, char *b
 
 static logger_t get_or_instantiate_logger() {
     if (NULL == logger_shared_memory) {
-        logger_create(&logger_shared_memory, "shared-memory", LOGGER_LEVEL_DEBUG);
+        logger_create(&logger_shared_memory, "shared-memory", CONSTANT_LOG_LEVEL);
     }
 
     return logger_shared_memory;

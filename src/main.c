@@ -7,21 +7,12 @@
 
 static logger_t logger;
 
-void on_key_pressed_callback(char key) {
-    logger_info(logger,"Received a key: %c", key);
-}
-
 void init_memory() {
-    memory_parameters_s parameters;
-    logger_create(&(parameters.logger), "memory", CONSTANT_LOG_LEVEL);
-    memory_init(&parameters);
+    memory_init();
 }
 
 void init_keyboard_listener() {
-    keyboard_listener_parameters_s parameters;
-    logger_create(&(parameters.logger), "keyboard", CONSTANT_LOG_LEVEL);
-    parameters.key_pressed_callback = on_key_pressed_callback;
-    keyboard_listener_create(&parameters);
+    keyboard_listener_create();
 }
 
 void init_logger() {
@@ -55,7 +46,7 @@ int main() {
             printf("%s", read_buffer);
         }
 
-        usleep(30000);
+        usleep(100000);
     }
 
     return 0;
