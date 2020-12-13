@@ -1,12 +1,13 @@
 #include "memory/memory.h"
 #include "log/logger.h"
+#include "settings/constants.h"
 
 #include <stdlib.h>
 
 static logger_t logger;
 
-void memory_init(memory_parameters_s *parameters) {
-    logger = parameters->logger;
+void memory_init() {
+    logger_create(&logger, "memory", CONSTANT_LOG_LEVEL);
 }
 
 void * memory_alloc(unsigned int size, char *description) {

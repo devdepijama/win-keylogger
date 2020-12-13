@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "assertions/assertions.h"
 
 #include "memory/memory.h"
+#include "memory/shared.h"
 #include "log/logger.h"
 
 #ifdef CONSTANT_LOG_LEVEL
@@ -12,36 +15,40 @@
 static logger_t logger_keyboard_listener;
 static logger_t logger_tests;
 static logger_t logger_memory;
+static logger_t logger_shared_memory;
 
-static void setup();
+static void wait_input(char *message);
+
+static void init();
 static void test_logger();
 static void test_memory();
 static void test_keyboard_listener();
+static void test_shared_memory();
+
+static void shared_memory_print_callback(void *source, unsigned length);
 
 int main() {
-    setup();
+    init();
 
     logger_info(logger_tests,"Running tests...");
 
     test_logger();
     test_memory();
-    test_keyboard_listener();
+    test_shared_memory();
 
     logger_info(logger_tests,"Finished tests Successfully :)");
     return 0;
 }
 
-static void setup() {
+static void init() {
     logger_create(&logger_keyboard_listener, "key-interceptor", LOGGER_LEVEL_DEBUG);
     logger_create(&logger_tests, "tests", LOGGER_LEVEL_DEBUG);
     logger_create(&logger_memory, "memory", LOGGER_LEVEL_DEBUG);
+    logger_create(&logger_shared_memory, "shared-memory", LOGGER_LEVEL_DEBUG);
 
     logger_info(logger_tests, "Setting tests up...");
 
-    memory_parameters_s parameters = {
-        .logger = logger_memory
-    };
-    memory_init(&parameters);
+    memory_init();
 }
 
 static void test_logger() {
@@ -111,7 +118,21 @@ static void test_memory() {
     memory_free(ptr_to_int, "a regular integer");
 }
 
-static void test_keyboard_listener() {
-    logger_t logger;
+static void test_shared_memory() {
+    char *message = "a random message";
+    shared_memory_t instance;
 
+    logger_info(logger_tests, "Testing shared memory");
+
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_instantiate(&instance), "Could not instantiate shared memory object");
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_create(instance), "Could not create shared memory");
+
+    logger_info(logger_tests, "Will send \"%s\" through shared memory", message);
+
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_write(instance, message, strlen(message) + 1), "Could not send a message on shared memory");
+
+    char read_buffer[256];
+    unsigned int read_bytes;
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_read(instance, read_buffer, &read_bytes), "Could not read from shared memory");
+    assert_equals(SHAREDMEMORY_E_SUCCESS, shared_memory_free(instance), "Could not free allocated resources for handling shared memory");
 }
