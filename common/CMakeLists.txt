@@ -6,5 +6,7 @@ add_library (
     log/logger.c
     memory/memory.c
     memory/shared.c
+    tcp/client.c
 )
+target_link_libraries(common ws2_32)
 target_include_directories(common PRIVATE .)
